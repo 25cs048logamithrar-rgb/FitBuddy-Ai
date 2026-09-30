@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitBuddy - AI Fitness Planner</title>
+    <link rel="stylesheet"
+          href="/static/style.css">
+</head>
+<body>
+<main class="container narrow">
+    <section class="hero">
+        <div class="badge">
+            🏋️ AI FITNESS PLANNER
+        </div>
+        <h1>
+            Build your week with
+            <span>FitBuddy</span>
+        </h1>
+        <p>
+            Generate a personalized 7-day workout plan
+            and a practical nutrition or recovery tip.
+        </p>
+        <form id="plan-form">
+            <pre id="plan-result"></pre>
+            <label for="name">Name</label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Enter your name"
+                required
+            >
+
+            <label for="user_id">User ID</label>
+            <input
+                type="text"
+                id="user_id"
+                name="user_id"
+                placeholder="Example: user001"
+                required
+            >
+
+            <label for="age">Age</label>
+            <input
+                type="number"
+                id="age"
+                name="age"
+                placeholder="25"
+                required
+            >
+
+            <label for="weight">Weight (kg)</label>
+            <input
+                type="number"
+                id="weight"
+                name="weight"
+                placeholder="70"
+                required
+            >
+
+            <label for="goal">Fitness Goal</label>
+            <select id="goal" name="goal">
+                <option value="Weight Loss">Weight Loss</option>
+                <option value="Muscle Gain">Muscle Gain</option>
+                <option value="General Fitness">General Fitness</option>
+            </select>
+
+            <label for="intensity">Workout Intensity</label>
+            <select id="intensity" name="intensity">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+            </select>
+
+            <button type="submit">
+                Generate 7-Day Plan
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+<script>
+document.getElementById("plan-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const result = document.getElementById("plan-result");
+    const values = new FormData(form);
+
+    result.textContent = "Generating your plan...";
+
+    try {
+        const response = await fetch("/api/generate-plan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: values.get("name"),
+                user_id: values.get("user_id"),
+                age: Number(values.get("age")),
+                weight: Number(values.get("weight")),
+                fitness_goal: values.get("goal"),
+                workout_intensity: values.get("intensity")
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(JSON.stringify(data));
+        }
+
+        result.textContent = data.plan;
+    } catch (error) {
+        result.textContent = `Could not generate the plan: ${error.message}`;
+    }
+});
+</script>
+</body>
+</html>
